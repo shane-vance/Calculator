@@ -1,22 +1,102 @@
+import java.util.ArrayList;
 import java.util.Stack;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
 
 public class Calculator {
 
-	public static void main(String[] args) throws ScriptException {
-
-		String e = "((5*28)+2+3*(2-Math.pow(2,2))/(3))";
-
+	
+	public static String convertToLatex(String s) {
 		
-		if (isEquation(e)) {	
-	        System.out.println(new ScriptEngineManager().getEngineByName("JavaScript").eval(e));
-		} else {
+		return s;
+		
+		
+		
+	}
+	
+	
+	public static String convertToJavaExpression(String e) {
+
+		String str = "";
+
+		ArrayList<String> temp = new ArrayList<String>();
+
+		ArrayList<Character> c = new ArrayList<Character>();
+
+		for (char ch : e.toCharArray()) {
 			
-			System.out.println("Expression incorrect!");
+			if (isOpen(ch)) {
+				
+				c.add('(');
+				
+			} else if (isClose(ch)) {
+				
+				c.add(')');
+				
+			} else {
+				
+				c.add(ch);
+				
+			}
+			
 		}
 		
+		c = removeOpen(c);
+
+		for (int i = 0; i < c.size(); i++) {
+
+			temp.add(Character.toString(c.get(i)));
+
+			if (i + 1 < c.size()) {
+				
+				if (isClose(c.get(i)) && isOpen(c.get(i + 1))) {
+
+					temp.add("*");
+
+				}
+
+				if (isNumber(c.get(i)) && isOpen(c.get(i + 1))) {
+
+					temp.add("*");
+
+				}
+
+				if (c.get(i) == '^') {
+
+					temp.remove(temp.size() - 1);
+					temp.remove(temp.size() - 1);
+					temp.add("Math.pow(" + c.get(i - 1) + "," + c.get(i + 1) + ")");
+					i++;
+
+				}
+
+			}
+
+		}
+
+		for (int i = 0; i < temp.size(); i++) {
+
+			str += temp.get(i);
+
+		}
+
+		return str;
+
+	}
+
+	private static ArrayList<Character> removeOpen(ArrayList<Character> c) {
+
+		for (int i = 0; i < c.size(); i++) {
+
+			if (isOpen(c.get(i)) && isClose(c.get(i + 1))) {
+
+				c.remove(i);
+				c.remove(i);
+				return removeOpen(c);
+
+			}
+
+		}
+
+		return c;
 
 	}
 
@@ -29,51 +109,55 @@ public class Calculator {
 	private static boolean isEquationHelper(char[] c, int index, Stack<Character> open, boolean result) {
 
 		if (index == c.length && open.empty()) {
-			
+
 			return result;
-			
-		} else if (index == c.length && !open.empty() || !(isDecimal(c[index]) || isNumber(c[index]) || isOperator(c[index]) || isOpen(c[index]) || isClose(c[index]))) {
-			
+
+		} else if (index == c.length && !open.empty() || !(isDecimal(c[index]) || isNumber(c[index])
+				|| isOperator(c[index]) || isOpen(c[index]) || isClose(c[index]))) {
+
 			return false;
-			
-		} else if (isDecimal(c[index]) && (isOperator(c[index + 1]) || isOpen(c[index + 1]) || isClose(c[index + 1]))) { 
-		
+
+		} else if (isDecimal(c[index]) && (isOperator(c[index + 1]) || isOpen(c[index + 1]) || isClose(c[index + 1]))) {
+
 			return false;
-			
+
 		} else if (isOpen(c[index])) {
 
 			open.push(c[index]);
 			return isEquationHelper(c, index + 1, open, result);
-			
+
 		} else if (open.empty() && isClose(c[index])) {
-			
+
 			return false;
-			
+
 		} else if (!open.empty() && isClose(open, c[index])) {
-			
+
 			open.pop();
 			return isEquationHelper(c, index + 1, open, true);
-			
+
 		} else if (isOperator(c[index])) {
-			
-			if (c[index] == '-' && !(c[index + 1] == '/' || c[index + 1] == '*' || c[index + 1] == '+' || c[index + 1] == '/' )) {
-				
+
+			if (c[index] == '-'
+					&& !(c[index + 1] == '/' || c[index + 1] == '*' || c[index + 1] == '+' || c[index + 1] == '/')) {
+
 				return isEquationHelper(c, index + 1, open, true);
-				
-			} else if (index == 0 || index == (c.length - 1) || isOperator(c[index + 1]) && c[index + 1] != '-' || isOpen(c[index - 1]) && isNumber(c[index + 1]) || isClose(c[index + 1]) && isNumber(c[index - 1])) {
-				
+
+			} else if (index == 0 || index == (c.length - 1) || isOperator(c[index + 1]) && c[index + 1] != '-'
+					|| isOpen(c[index - 1]) && isNumber(c[index + 1])
+					|| isClose(c[index + 1]) && isNumber(c[index - 1])) {
+
 				return false;
-				
+
 			} else {
-				
+
 				return isEquationHelper(c, index + 1, open, true);
-				
+
 			}
-			
+
 		} else {
-			
+
 			return isEquationHelper(c, index + 1, open, true);
-			
+
 		}
 
 	}
