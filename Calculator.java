@@ -84,7 +84,6 @@ public class Calculator {
 
 			}
 			
-			
 		}
 
 		while (!operator.empty()) {
@@ -123,12 +122,38 @@ public class Calculator {
 			
 			try {
 				
-				int n = b.intValueExact();
-				return a.pow(n);
+				if (b.toString().contains(Character.toString('-')) || b.toString().contains(Character.toString('.'))) {
+				
+					BigDecimal result;
+					double a1 = a.doubleValue();
+					double b1 = b.doubleValue();
+					double pow = Math.pow(a1, b1);
+					String str = "" + pow;
+					result = new BigDecimal(str);
+					return result;
+					
+				} else {
+					
+					try {
+									
+						 int n = b.intValueExact();
+						 return a.pow(n);		
+					
+					} catch(UnsupportedOperationException e) {
+						
+						throw new UnsupportedOperationException("Power must be a double");
+
+					} catch (ArithmeticException e) {
+						
+						throw new ArithmeticException("Invalid input");
+						
+					}
+					
+				}
 				
 			} catch(UnsupportedOperationException e) {
 
-				System.out.println("Power must be a double");
+				throw new UnsupportedOperationException("Exponent not supported");
 				
 			}
 		
@@ -136,7 +161,7 @@ public class Calculator {
 
 			if (b.toString().equals("0")) {
 
-				throw new UnsupportedOperationException("Cannot Divide by Zero");
+				throw new UnsupportedOperationException("Cannot divide by zero");
 
 			} else {
 				
@@ -184,6 +209,13 @@ public class Calculator {
 			
 			if (i + 1 < c.size()) {
 				
+				if (isClose(c.get(i)) && isOperand(c.get(i + 1))) {
+
+					temp.add("*");
+
+				}
+
+				
 				if (isClose(c.get(i)) && isOpen(c.get(i + 1))) {
 
 					temp.add("*");
@@ -200,6 +232,23 @@ public class Calculator {
 					
 					temp.remove(temp.size() - 1);
 					temp.add("+");
+					
+					if (i == 0 && c.get(i) == '-' && c.get(i + 1) == '-') {
+						
+						temp.remove(temp.size() - 1);
+						i++;
+						continue;
+					
+					}
+					
+					if (i != 0 && (isOpen(c.get(i - 1)) && isOpen(c.get(i + 2))) || (isOpen(c.get(i - 1)) && isOperand(c.get(i + 2)))) {
+						
+						temp.remove(temp.size() - 1);
+						i++;
+						continue;
+					
+					}
+					
 					i++;
 					continue;
 					
@@ -212,12 +261,12 @@ public class Calculator {
 					i++;
 					continue;
 					
-				}
+				}				
 				
-				if (c.get(i) == '-') {
-						
-					if ((i != 0 && c.get(i - 1) == '+') || isOpen(c.get(i + 1))){
-						
+				if (c.get(i) == '-') {					
+					
+					if ((i != 0 && c.get(i - 1) == '+') || isOpen(c.get(i + 1)) || isOpen(c.get(i - 1))){
+				
 						temp.remove(temp.size() - 1);
 						temp.add("0-");
 						
@@ -246,7 +295,7 @@ public class Calculator {
 			}
 
 		}
-
+		
 		for (int i = 0; i < temp.size(); i++) {
 			
 			if (temp.get(i).equals(" ")) {			

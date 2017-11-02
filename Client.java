@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.util.EmptyStackException;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -24,7 +23,7 @@ public class Client {
 		gui.setLayout(new FlowLayout());
 		gui.setTitle("Calculator");
 		
-		// Text box
+		// Textbox
 		JTextField txt = new JTextField();	
 		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 30);
 		txt.setFont(font);
@@ -39,7 +38,9 @@ public class Client {
 		gui.add(equals);
 		
 		equals.addActionListener(new ActionListener(){
+			
 			public void actionPerformed(ActionEvent ae) {
+				
 				String exp = txt.getText();
 
 				exp = Calculator.convertToProperExpression(exp);
@@ -47,21 +48,25 @@ public class Client {
 				if (Calculator.isEquation(exp)) {
 					
 					try {
-					
+						
 						BigDecimal result = Calculator.eval(exp);
 						txt.setText(result.toString());
 					
 					} catch (NumberFormatException e ) {
-					
+	
 						txt.setText("Invalid input");
 					
 					} catch (EmptyStackException e) {
-						
+
 						txt.setText("Invalid input");
 						
 					} catch (UnsupportedOperationException e) {
 					
-						txt.setText("Cannot divide by zero!");
+						txt.setText(e.getMessage());
+						
+					} catch (ArithmeticException e) {
+						
+						txt.setText(e.getMessage());
 						
 					}
 					
