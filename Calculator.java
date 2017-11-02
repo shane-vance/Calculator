@@ -2,6 +2,12 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Stack;
 
+/**
+ * 
+ * @author Shane Vance
+ *
+ */
+
 public class Calculator {
 	
 	/**
@@ -102,6 +108,14 @@ public class Calculator {
 	
 	}
 
+	/**
+	 * This goes through and apply the operator as needed
+	 * @param operator
+	 * @param b
+	 * @param a
+	 * @return
+	 */
+	
 	private static BigDecimal applyOperator(char operator, BigDecimal b, BigDecimal a) {
 
 		switch (operator) {
@@ -122,6 +136,7 @@ public class Calculator {
 			
 			try {
 				
+				// Checks to see if the exponent contains a negative power or a double exponent
 				if (b.toString().contains(Character.toString('-')) || b.toString().contains(Character.toString('.'))) {
 				
 					BigDecimal result;
@@ -134,6 +149,7 @@ public class Calculator {
 					
 				} else {
 					
+					// This will hand large exponents and throw exceptions if it cannot
 					try {
 									
 						 int n = b.intValueExact();
@@ -145,7 +161,7 @@ public class Calculator {
 
 					} catch (ArithmeticException e) {
 						
-						throw new ArithmeticException("Invalid input");
+						throw new ArithmeticException("Error: invalid input");
 						
 					}
 					
@@ -175,6 +191,15 @@ public class Calculator {
 
 	}	
 	
+	/**
+	 * 
+	 * This will convert a string into a readable representation for the evaluator
+	 * to evaluate.
+	 * 
+	 * @param e
+	 * @return
+	 */
+	
 	public static String convertToProperExpression(String e) {
 
 		String str = "";
@@ -201,7 +226,15 @@ public class Calculator {
 			
 		}
 		
-		c = removeOpen(c);
+		try {
+			
+			c = removeOpen(c);
+			
+		} catch (IndexOutOfBoundsException ex) {
+			
+			throw new IndexOutOfBoundsException("Error: invalid input");
+			
+		}
 
 		for (int i = 0; i < c.size(); i++) {
 
@@ -228,6 +261,7 @@ public class Calculator {
 
 				}
 				
+				// Converts two minus' into a plus
 				if (c.get(i) == '-' && c.get(i + 1) == '-') {
 					
 					temp.remove(temp.size() - 1);
@@ -263,6 +297,7 @@ public class Calculator {
 					
 				}				
 				
+				// Checks to see if the current value is negative
 				if (c.get(i) == '-') {					
 					
 					if ((i != 0 && c.get(i - 1) == '+') || isOpen(c.get(i + 1)) || isOpen(c.get(i - 1))){
@@ -283,8 +318,10 @@ public class Calculator {
 						
 						if (i != 0 && (c.get(i - 1) == '*' || c.get(i - 1) == '/')) {
 							
+							
 							temp.remove(temp.size() - 1);
 							temp.add("1+0-");
+							System.out.println(temp);
 							
 						}	
 						
@@ -296,6 +333,7 @@ public class Calculator {
 
 		}
 		
+		// Builds the string and collapses any whitespace
 		for (int i = 0; i < temp.size(); i++) {
 			
 			if (temp.get(i).equals(" ")) {			
@@ -314,6 +352,7 @@ public class Calculator {
 
 	}
 
+	// Goes through and checks to see if there are any open or close braces 
 	private static ArrayList<Character> removeOpen(ArrayList<Character> c) {
 
 		for (int i = 0; i < c.size(); i++) {
@@ -332,12 +371,15 @@ public class Calculator {
 
 	}
 
+	// Evaluates whether the string is an equation
 	public static boolean isEquation(String e) {
 
 		return isEquationHelper(e.toCharArray(), 0, new Stack<Character>(), false);
 
 	}
 
+	// Recursive helper method for the equation checker
+	// Parses through to see if the string is in the correct format to be evaluated
 	private static boolean isEquationHelper(char[] c, int index, Stack<Character> open, boolean result) {
 
 		if (index == c.length && open.empty()) {
